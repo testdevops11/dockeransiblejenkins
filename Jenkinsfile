@@ -24,13 +24,18 @@ pipeline{
                 sh "mvn clean package"
             }
         }
-        stage('SonarQube analysis') {
-            steps{
-                def scannerHome = tool 'SonarScanner 4.0';
-                withSonarQubeEnv('http://18.117.226.130:9000') { 
-                sh "${scannerHome}/bin/sonar-scanner"
-                }    
-            }
+        stage('Sonarqube') {
+                environment {
+                scannerHome = tool 'SonarQubeScanner'
+                }
+                steps {
+                    withSonarQubeEnv('sonarqube') {
+                    sh "${scannerHome}/bin/sonar-scanner"
+                    }
+                    timeout(time: 10, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                    }
+                }
         }
         
         stage('Docker Build'){
