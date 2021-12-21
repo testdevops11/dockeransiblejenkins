@@ -12,6 +12,19 @@ pipeline{
                git 'https://github.com/testdevops11/dockeransiblejenkins.git'
             }
         }
+        stage('Sonarqube') {
+                environment {
+                scannerHome = tool 'SonarQubeScanner'
+                }
+                steps {
+                    withSonarQubeEnv('sonarqube') {
+                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=ansibledocker -Dsonar.sources=. "
+                        }
+                    timeout(time: 10, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                    }
+                }
+        }
         
         stage('Maven Build'){
             steps{
