@@ -17,8 +17,11 @@ pipeline{
             steps{
                 sh "mvn clean package"
             }
+             post {
+                   always {
+                   }   jiraSendBuildInfo branch: '', site: 'testingdevopssamba.atlassian.net'
+             }
         }
-        
         stage('Docker Build'){
             steps{
                 sh " docker build . -t samba1295/sampleapp:${DOCKER_TAG} "
