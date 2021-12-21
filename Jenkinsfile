@@ -9,8 +9,7 @@ pipeline{
     stages{
         stage('SCM'){
             steps{
-                git credentialsId: 'github', 
-                    url: 'https://github.com/javahometech/dockeransiblejenkins'
+               git 'https://github.com/SambaGoggula/dockeransiblejenkins.git'
             }
         }
         
@@ -22,29 +21,31 @@ pipeline{
         
         stage('Docker Build'){
             steps{
-                sh "docker build . -t kammana/hariapp:${DOCKER_TAG} "
+                sh " docker build . -t samba1295/sampleapp:${DOCKER_TAG} "
             }
         }
-        
+        stage('DockerHub Push'){
+            steps{
         stage('DockerHub Push'){
             steps{
                 withCredentials([string(credentialsId: 'docker-hub', variable: 'dockerHubPwd')]) {
-                    sh "docker login -u kammana -p ${dockerHubPwd}"
+                    sh "docker login -u samba1295 -p ${dockerHubPwd}"
                 }
                 
-                sh "docker push kammana/hariapp:${DOCKER_TAG} "
+                sh "docker push samba1295/sampleapp:${DOCKER_TAG} "
             }
         }
-        
-        stage('Docker Deploy'){
+        stage('Docker deploy using ansible'){
             steps{
-              ansiblePlaybook credentialsId: 'dev-server', disableHostKeyChecking: true, extras: "-e DOCKER_TAG=${DOCKER_TAG}", installation: 'ansible', inventory: 'dev.inv', playbook: 'deploy-docker.yml'
-            }
+                ansiblePlaybook become: true, credentialsId: 'dev-server', disableHostKeyChecking: true, extras: "-e DOCKER_TAG=${DOCKER_TAG}", installation: 'ansible', inventory: 'dev.inv', playbook: 'deploy-docker.yml'
+            }    
         }
     }
 }
 
+ 
+
 def getVersion(){
-    def commitHash = sh label: '', returnStdout: true, script: 'git rev-parse --short HEAD'
+    def commitHash = sh returnStdout: true, script: 'git rev-parse --short HEAD'
     return commitHash
 }
