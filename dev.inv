@@ -1,3 +1,4 @@
 [dev]
-34.226.195.125 ansible_user=ec2-user
-54.196.237.210 ansible_user=ec2-user
+ec2-user@ip-172-31-18-91
+root@ip-172-31-25-205
+
