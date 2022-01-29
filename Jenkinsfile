@@ -31,7 +31,7 @@ pipeline{
             steps{
         stage('DockerHub Push'){
             steps{
-                withCredentials([string(credentialsId: 'docker-hub', variable: 'dockerHubPwd')]) {
+                withCredentials([string(credentialsId: 'docker-hub2', variable: 'dockerHubPwd')]) {
                     sh "docker login -u samba1295 -p ${dockerHubPwd}"
                 }
                 
