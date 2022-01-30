@@ -12,7 +12,7 @@ pipeline{
                git 'https://github.com/SambaGoggula/dockeransiblejenkins.git'
             }
         }
-        stage('Sonarqube') {
+        stage('SonarQube') {
                 environment {
                 scannerHome = tool 'sonarQube Scanner'
                 }
