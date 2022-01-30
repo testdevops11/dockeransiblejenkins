@@ -17,10 +17,10 @@ pipeline{
             steps{
                 sh "mvn clean package"
             }
-             post {
+            post {
                    always {
                    }   jiraSendBuildInfo branch: '', site: 'testingdevopssamba.atlassian.net'
-             }
+            }
         }
         stage('Docker Build'){
             steps{
