@@ -1,18 +1,23 @@
-- hosts: localhost
+---
+-
+  become: true
+  hosts: dev
   tasks:
-  - name: Install docker.
-    package:
-      name: docker-ce
-      state: present
-  - name: Start docker service
-    service:
-      name: docker
-      state: started
-  - name: Create a redis container
-    docker_container:
-      name: data1
-      image: centos
-      state: started
-      recreate: yes
-      exposed_ports:
-        - 8080
+    -
+      command: "{{ item }}"
+      name: "install docker"
+      with_items:
+        - "sudo dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo"
+        - "sudo dnf install docker-ce --nobest -y"
+        - "sudo systemctl enable docker"
+        - "sudo systemctl start docker"
+        - "sudo dnf install python3-pip -y"
+        - "pip3 install docker-py"
+    -
+      docker_container:
+        image: "samba1295/sampleapp:{{DOCKER_TAG}}"
+        name: sampleapp
+        published_ports:
+          - "0.0.0.0:8553:8080"
+        state: started
+
