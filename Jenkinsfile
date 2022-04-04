@@ -9,57 +9,40 @@ pipeline{
     stages{
         stage('SCM'){
             steps{
-               git 'https://github.com/testdevops11/dockeransiblejenkins.git'
+               git 'https://github.com/SambaGoggula/dockeransiblejenkins.git'
             }
         }
-        stage('Sonarqube') {
-                environment {
-                scannerHome = tool 'SonarQubeScanner'
-                }
-                steps {
-                    withSonarQubeEnv('sonarqube') {
-                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=ansibledocker -Dsonar.sources=. "
-                        }
-                    timeout(time: 10, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                    }
-                }
-        }
-        
-        stage('Maven Build'){
+         stage('Maven Build'){
             steps{
                 sh "mvn clean package"
             }
             post {
                  always {
-                    jiraSendBuildInfo branch: '', site: 'testing-devops123.atlassian.net'
+                   jiraSendBuildInfo branch: '', site: 'testingdevopssamba.atlassian.net'
                  }
             }
         }
-        
-        
-        stage('Docker Build'){
+         stage('Docker Build'){
             steps{
-                sh " docker build . -t sahilthakre123/sampleapp:${DOCKER_TAG} "
+                sh " docker build . -t samba1295/sampleapp:${DOCKER_TAG} "
             }
         }
         stage('DockerHub Push'){
             steps{
                 withCredentials([string(credentialsId: 'docker-hub', variable: 'dockerHubPwd')]) {
-                    sh "docker login -u sahilthakre123 -p ${dockerHubPwd}"
+                    sh "docker login -u samba1295 -p ${dockerHubPwd}"
                 }
                 
-                sh "docker push sahilthakre123/sampleapp:${DOCKER_TAG} "
+                sh "docker push samba1295/sampleapp:${DOCKER_TAG} "
             }
         }
         stage('Docker deploy using ansible'){
             steps{
-                ansiblePlaybook become: true, credentialsId: 'dev-server', disableHostKeyChecking: true, extras: "-e DOCKER_TAG=${DOCKER_TAG}", installation: 'ansible', inventory: 'dev.inv', playbook: 'deploy-docker.yml'
+                ansiblePlaybook become: true, credentialsId: 'dev-server2', disableHostKeyChecking: true, extras:"-e DOCKER_TAG=${DOCKER_TAG}", installation: 'ansible', inventory: 'dev.inv', playbook: 'deploy-docker.yml'
             }
         }
     }
 }
-
 def getVersion(){
     def commitHash = sh returnStdout: true, script: 'git rev-parse --short HEAD'
     return commitHash
